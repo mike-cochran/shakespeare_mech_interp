@@ -2,3 +2,9 @@ requests
 numpy
 torch
 tokenizers
+transformer_lens
+sae_lens
+umap-learn
+einops
+wandb
+pyyaml

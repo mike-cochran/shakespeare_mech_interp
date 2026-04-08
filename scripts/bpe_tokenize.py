@@ -1,17 +1,18 @@
 import json
-import numpy as np
-from pathlib import Path
 from collections import Counter
+from pathlib import Path
+
+import numpy as np
 from tokenizers import Tokenizer
-from tokenizers.models import BPE
-from tokenizers.trainers import BpeTrainer
-from tokenizers.pre_tokenizers import ByteLevel
 from tokenizers.decoders import ByteLevel as ByteLevelDecoder
+from tokenizers.models import BPE
+from tokenizers.pre_tokenizers import ByteLevel
+from tokenizers.trainers import BpeTrainer
 
 # Config BPE params
 CORPUS_FILE = Path("data/shakespeare_combined.txt")
 VOCAB_SIZE = 3000
-MIN_FREQUENCY = 3          # token must appear at least this many times
+MIN_FREQUENCY = 3  # token must appear at least this many times
 TRAIN_TEST_SPLIT = 0.9
 OUTPUT_DIR = Path("tokenizer_output")
 
@@ -65,10 +66,10 @@ with open(OUTPUT_DIR / "vocab.json", "w") as f:
     json.dump(id_to_token, f, indent=2)
 
 print(f"\nSaved to {OUTPUT_DIR}/:")
-print(f"  tokenizer.json  – full tokenizer (reload with Tokenizer.from_file)")
-print(f"  train.npy       – training token ids")
-print(f"  val.npy         – validation token ids")
-print(f"  vocab.json      – id→token mapping for interpretability")
+print("  tokenizer.json  – full tokenizer (reload with Tokenizer.from_file)")
+print("  train.npy       – training token ids")
+print("  val.npy         – validation token ids")
+print("  vocab.json      – id→token mapping for interpretability")
 
 
 # 5. Check tokenization results

@@ -1,6 +1,6 @@
 """Auto-label SAE features by sending top-activating contexts to an LLM.
 
-Owner: 
+Owner:
 """
 
 from __future__ import annotations

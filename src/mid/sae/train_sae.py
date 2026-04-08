@@ -1,6 +1,6 @@
 """SAELens training entry point. Consumes cached activations from `mid.sae.activations`.
 
-Owner: 
+Owner:
 """
 
 from __future__ import annotations

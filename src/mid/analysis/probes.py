@@ -1,6 +1,6 @@
 """Supervised probes for character / scene / act / verse concepts. Labels come from Folger XML tagger.
 
-Owner: 
+Owner:
 """
 
 from __future__ import annotations

@@ -14,7 +14,7 @@ def load_token_arrays(tokenizer_dir: str):
     root = Path(tokenizer_dir)
     train_ids = np.load(root / "train.npy")
     val_ids = np.load(root / "val.npy")
-    return train_ids.as_type(np.int64), val_ids.as_type(np.int64) # pytorch simplification is reccomended for ids
+    return train_ids.astype(np.int64), val_ids.astype(np.int64) # pytorch simplification is reccomended for ids
 
 
 def make_batches(ids, batch_size: int, seq_len: int, seed: int = 0):

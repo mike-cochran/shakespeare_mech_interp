@@ -1,6 +1,6 @@
-from pathlib import Path
 import json
 import sys
+from pathlib import Path
 
 import numpy as np
 
@@ -59,7 +59,7 @@ def check_json_file(path: Path) -> bool:
             print(f"          entries: {len(data):,}")
             sample_keys = list(data.keys())[:5]
             print(f"          sample keys: {sample_keys}")
-        # Might be a list of tokens or something else 
+        # Might be a list of tokens or something else
         elif isinstance(data, list):
             print(f"          entries: {len(data):,}")
         else:

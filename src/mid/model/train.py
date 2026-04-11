@@ -6,14 +6,15 @@ Owner:
 from __future__ import annotations
 
 import json
+from pathlib import Path
+
 import numpy as np
 import torch
 from tokenizers import Tokenizer
-from pathlib import Path
-from transformer_lens import HookedTransformerConfig, HookedTransformer
 
 from mid.config import ModelConfig, TrainConfig
 from mid.model.dataset import load_token_arrays, make_batches
+from mid.model.hooked_model import build_model
 
 
 # Define function to calculate cross entropy loss on predicted tokens
@@ -36,7 +37,7 @@ def estimate_loss(model, train_batches, val_batches, eval_batches: int, device: 
     return results
 
 
-def train(model_cfg: ModelConfig, train_cfg: TrainConfig, tokenizer_dir: str, out_dir: str):
+def train(model_cfg: ModelConfig, model_type, model_size, train_cfg: TrainConfig, tokenizer_dir: str, out_dir: str):
     """A simple training method to start"""
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device: {device} <-- Make sure 'cuda' if GPU is available")
@@ -48,9 +49,7 @@ def train(model_cfg: ModelConfig, train_cfg: TrainConfig, tokenizer_dir: str, ou
     val_batches = make_batches(val_data, train_cfg.batch_size, seq_len, seed=1)
 
     # Build model
-    hooked_cfg = HookedTransformerConfig(**model_cfg.to_dict())
-    model = HookedTransformer(hooked_cfg).to(device)
-    print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
+    model = build_model(model_cfg)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=train_cfg.learning_rate)
 
@@ -80,7 +79,7 @@ def train(model_cfg: ModelConfig, train_cfg: TrainConfig, tokenizer_dir: str, ou
             if losses["val"] < best_val_loss:
                 best_val_loss = losses["val"]
                 marker = " * New best model"
-                torch.save(model.state_dict(), out_path / "best_model.pt")
+                torch.save(model.state_dict(), out_path / f"{model_type}_{model_size}_best_model.pt")
             print(f"Step {step:>6} | train {losses['train']:.3f} | val {losses['val']:.3f}{marker}")
 
     # Final save

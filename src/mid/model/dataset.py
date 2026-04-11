@@ -4,8 +4,10 @@ Owner:
 """
 
 from __future__ import annotations
-import numpy as np
+
 from pathlib import Path
+
+import numpy as np
 import torch
 
 
@@ -21,12 +23,12 @@ def make_batches(ids, batch_size: int, seq_len: int, seed: int = 0):
     """Yield (input_ids, target_ids) batches for next-token prediction."""
     ids = ids.copy() # avoid modifying original
 
-    if ids.ndim != 1: 
+    if ids.ndim != 1:
         raise ValueError(f"Expected array to be 1D, got shape {ids.shape} instead")
     if len(ids) < batch_size * seq_len + 1:
         raise ValueError(f"Not enough tokens to create a single batch of size {batch_size} and seq_len {seq_len}. Got {len(ids)} tokens.")
-    
-    # shuffling tokens around to prevent overfitting 
+
+    # shuffling tokens around to prevent overfitting
     randomizer = np.random.default_rng(seed)
     max_start = len(ids) - seq_len - 1
 

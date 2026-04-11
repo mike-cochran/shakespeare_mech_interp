@@ -20,6 +20,8 @@ This repository contains a mechnistic interpretability study of a GPT-style mode
 
 ### 1. Prerequisites
 
+Python version 3.10 or higher required
+
 Create virtual environment: py -m venv .venv
 
 Activate virtual environment: .venv\Scripts\activate

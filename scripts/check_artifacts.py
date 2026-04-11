@@ -1,6 +1,6 @@
-from pathlib import Path
 import json
 import sys
+from pathlib import Path
 
 import numpy as np
 
@@ -42,6 +42,7 @@ def check_text_file(path: Path) -> bool:
         print(f"[ERROR]   Failed to read text file: {e}")
         return False
 
+
 # Check JSON files (tokenizer and vocab)
 def check_json_file(path: Path) -> bool:
     print_header(f"Checking JSON file: {path.name}")
@@ -59,7 +60,7 @@ def check_json_file(path: Path) -> bool:
             print(f"          entries: {len(data):,}")
             sample_keys = list(data.keys())[:5]
             print(f"          sample keys: {sample_keys}")
-        # Might be a list of tokens or something else 
+        # Might be a list of tokens or something else
         elif isinstance(data, list):
             print(f"          entries: {len(data):,}")
         else:
@@ -69,6 +70,7 @@ def check_json_file(path: Path) -> bool:
     except Exception as e:
         print(f"[ERROR]   Failed to load JSON: {e}")
         return False
+
 
 # Check NumPy .npy files (train and val token ids)
 def check_npy_file(path: Path) -> bool:

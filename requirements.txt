@@ -8,3 +8,4 @@ umap-learn
 einops
 wandb
 pyyaml
+ipywidgets

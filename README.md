@@ -20,7 +20,13 @@ This repository contains a mechnistic interpretability study of a GPT-style mode
 
 ### 1. Prerequisites
 
-Set up requirements with: pip install -r requirements.txt
+Create virtual environment: py -m venv .venv
+
+Activate virtual environment: .venv\Scripts\activate
+
+Set up pip with: python -m pip install --upgrade pip
+
+Set up requirements with: python -m pip install -r requirements.txt
 
 ### 2. Data Preparation
 
@@ -58,4 +64,14 @@ To see examples of how the tokenizer handles specific passages (with color-coded
 ```bash
 python inspect_tokenizer.py
 ```
+
+### 5. Validating Artifacts (Optional)
+
+To ensure tokenizer output and other artifacts were generated appropriately: 
+
+```bash
+python check_artifacts.py
+``` 
+
+
 

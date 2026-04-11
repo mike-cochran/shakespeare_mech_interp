@@ -22,6 +22,7 @@ def build_model(cfg: ModelConfig):
 
     return model
 
+
 def load_checkpoint(path: str):
     """Load a trained HookedTransformer from disk."""
     raise NotImplementedError

@@ -42,6 +42,7 @@ def check_text_file(path: Path) -> bool:
         print(f"[ERROR]   Failed to read text file: {e}")
         return False
 
+
 # Check JSON files (tokenizer and vocab)
 def check_json_file(path: Path) -> bool:
     print_header(f"Checking JSON file: {path.name}")
@@ -69,6 +70,7 @@ def check_json_file(path: Path) -> bool:
     except Exception as e:
         print(f"[ERROR]   Failed to load JSON: {e}")
         return False
+
 
 # Check NumPy .npy files (train and val token ids)
 def check_npy_file(path: Path) -> bool:

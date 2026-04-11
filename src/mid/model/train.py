@@ -28,16 +28,21 @@ def estimate_loss(model, train_batches, val_batches, eval_batches: int, device: 
             x, y = next(batches)
             x, y = x.to(device), y.to(device)
             logits = model(x)
-            loss = torch.nn.functional.cross_entropy(
-                logits.view(-1, logits.size(-1)), y.view(-1)
-            )
+            loss = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), y.view(-1))
             losses.append(loss.item())
         results[name] = np.mean(losses)
     model.train()
     return results
 
 
-def train(model_cfg: ModelConfig, model_type, model_size, train_cfg: TrainConfig, tokenizer_dir: str, out_dir: str):
+def train(
+    model_cfg: ModelConfig,
+    model_type,
+    model_size,
+    train_cfg: TrainConfig,
+    tokenizer_dir: str,
+    out_dir: str,
+):
     """A simple training method to start"""
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device: {device} <-- Make sure 'cuda' if GPU is available")
@@ -63,9 +68,7 @@ def train(model_cfg: ModelConfig, model_type, model_size, train_cfg: TrainConfig
         x, y = next(train_batches)
         x, y = x.to(device), y.to(device)
         logits = model(x)
-        loss = torch.nn.functional.cross_entropy(
-            logits.view(-1, logits.size(-1)), y.view(-1)
-        )
+        loss = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), y.view(-1))
 
         optimizer.zero_grad()
         loss.backward()
@@ -74,12 +77,16 @@ def train(model_cfg: ModelConfig, model_type, model_size, train_cfg: TrainConfig
 
         # Evaluate at set interval and save out the model with the lowest loss
         if step % train_cfg.eval_interval == 0:
-            losses = estimate_loss(model, train_batches, val_batches, train_cfg.eval_batches, device)
+            losses = estimate_loss(
+                model, train_batches, val_batches, train_cfg.eval_batches, device
+            )
             marker = ""
             if losses["val"] < best_val_loss:
                 best_val_loss = losses["val"]
                 marker = " * New best model"
-                torch.save(model.state_dict(), out_path / f"{model_type}_{model_size}_best_model.pt")
+                torch.save(
+                    model.state_dict(), out_path / f"{model_type}_{model_size}_best_model.pt"
+                )
             print(f"Step {step:>6} | train {losses['train']:.3f} | val {losses['val']:.3f}{marker}")
 
     # Final save
@@ -92,7 +99,9 @@ def train(model_cfg: ModelConfig, model_type, model_size, train_cfg: TrainConfig
     return model
 
 
-def generate_sample(model, tokenizer_path: str, device: str, max_new_tokens=200, prompt="HAMLET:\nTo be, or not"):
+def generate_sample(
+    model, tokenizer_path: str, device: str, max_new_tokens=200, prompt="HAMLET:\nTo be, or not"
+):
     """Generate a short sample to sanity-check the model."""
     tokenizer = Tokenizer.from_file(str(Path(tokenizer_path)))
     encoded = tokenizer.encode(prompt)
@@ -101,7 +110,7 @@ def generate_sample(model, tokenizer_path: str, device: str, max_new_tokens=200,
     model.eval()
     with torch.no_grad():
         for _ in range(max_new_tokens):
-            x = input_ids[:, -model.cfg.n_ctx:]
+            x = input_ids[:, -model.cfg.n_ctx :]
             logits = model(x)
             probs = torch.softmax(logits[:, -1, :] / 0.8, dim=-1)
             next_id = torch.multinomial(probs, num_samples=1)

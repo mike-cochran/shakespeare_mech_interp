@@ -44,6 +44,7 @@ def load_yaml(path: str) -> dict:
     with open(path) as f:
         return yaml.safe_load(f)
 
+
 def load_configs(path: str) -> tuple[ModelConfig, TrainConfig]:
     """Load a single YAML and split it into ModelConfig and TrainConfig."""
     raw = load_yaml(path)

@@ -1,6 +1,6 @@
 """nanoGPT-style training loop for the HookedTransformer. Logs loss, perplexity, attention pattern snapshots.
 
-Owner:
+Owner: Mike C.
 """
 
 from __future__ import annotations

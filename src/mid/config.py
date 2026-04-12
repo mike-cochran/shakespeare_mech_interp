@@ -1,6 +1,6 @@
 """Dataclass configs for the transformer, SAE, and training loops. Loaded from YAML files in `configs/`.
 
-Owner:
+Owner: Mike C.
 """
 
 from __future__ import annotations

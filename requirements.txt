@@ -3,6 +3,7 @@ numpy
 torch
 tokenizers
 transformer_lens
+anthropic
 sae_lens
 umap-learn
 einops

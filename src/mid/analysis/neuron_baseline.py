@@ -5,6 +5,7 @@ Owner: Areeb
 
 from __future__ import annotations
 
+import anthropic
 import statistics
 from collections import Counter
 
@@ -56,17 +57,18 @@ def top_activating_neurons(
 # labeling pipeline solidifies so auto_label.py can share it.
 def _score_via_llm(snippets: list[str], model: str = "claude-haiku-4-5") -> float:
     """Ask an LLM for a 0-1 monosemanticity rating on these contexts."""
-    import anthropic
 
     client = anthropic.Anthropic()
     prompt = (
-        "You are rating how monosemantic a neuron is based on its top "
-        "activating contexts.\n"
-        "Monosemantic = all contexts share a single clear concept "
-        "(character name, punctuation role, etc.).\n"
-        "Polysemantic = contexts span unrelated concepts.\n"
-        "Return a single float between 0 and 1, nothing else. "
-        "1 = fully monosemantic.\n\n"
+        "You are rating how monosemantic a neuron or feature is, based on "
+        "its top activating contexts from a small GPT trained on "
+        "Shakespeare's plays.\n"
+        "Monosemantic (score near 1): every context shares one clear "
+        "concept, e.g. a single character's name (HAMLET, FALSTAFF), a "
+        "punctuation role (end-of-line colons after speaker tags), stage "
+        "directions, or a specific syntactic pattern.\n"
+        "Polysemantic (score near 0): the contexts span unrelated concepts.\n"
+        "Return a single float between 0 and 1, nothing else.\n\n"
         "Contexts:\n" + "\n---\n".join(s[:200] for s in snippets)
     )
     resp = client.messages.create(

@@ -10,11 +10,11 @@ from tokenizers.pre_tokenizers import ByteLevel
 from tokenizers.trainers import BpeTrainer
 
 # Config BPE params
-CORPUS_FILE = Path("data/shakespeare_combined.txt")
+CORPUS_FILE = Path("../data/shakespeare_combined.txt")
 VOCAB_SIZE = 3000
 MIN_FREQUENCY = 3  # token must appear at least this many times
 TRAIN_TEST_SPLIT = 0.9
-OUTPUT_DIR = Path("tokenizer_output")
+OUTPUT_DIR = Path("../tokenizer_output")
 
 OUTPUT_DIR.mkdir(exist_ok=True)
 

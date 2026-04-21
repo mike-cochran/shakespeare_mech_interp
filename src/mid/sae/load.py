@@ -7,7 +7,7 @@ Owner: David Teklea
 from __future__ import annotations
 
 
-def load_sae(path: str):
+def load_sae(path: str, device: str = "cpu"):
     """Load a trained SAE from disk. 
     Args: path ('out_dir' to 'train_sae', Should contain the
                 files written by `TrainingSAE.save_inference_model` (weights +

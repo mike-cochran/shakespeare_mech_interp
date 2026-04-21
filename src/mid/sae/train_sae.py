@@ -30,7 +30,7 @@ def _build_hf_cache(
    activations_pt_path: str,
    sae_cfg: SAEConfig,
    cache_dir: Path,     
-) -> None: 
+) -> Dataset: 
     """Convert Cole's per-layer .pt payload into the SAELens-comptatible format HF Dataset
     
     Cole's cache stores activations flattened as `[n_seq * seq_len, d_in]` and
@@ -39,9 +39,9 @@ def _build_hf_cache(
     `[n_seq, seq_len, d_in]` / `[n_seq, seq_len]` before writing.
     """
 
-    hook_name = sae_cfg.hook_name
-    contxt_size = sae_cfg.context_size
-    d_input = sae_cfg.d_input
+    hook_name = sae_cfg.hook_name()
+    contxt_size = sae_cfg.context_len
+    d_input = sae_cfg.dim_input
     # read the .pt file and extract activations and token_ids
     activations, metadata, n_tokens, n_activations = read_activations(activations_pt_path, layer_num=sae_cfg.layer)
     if n_activations != d_input:
@@ -87,6 +87,17 @@ def _build_hf_cache(
         f"at hook {hook_name!r} -> {cache_dir}"
     )
 
+    ## have to build a separate tokens-only dataset for the init check
+    ## conducted by SAELens before training
+    override_features = Features({
+        "tokens": Sequence(Value(dtype="int64"), length=contxt_size)
+    })
+    override_ds = Dataset.from_dict(
+        {"tokens": metadata["token_ids"].reshape(n_seq, contxt_size).to(torch.int64).numpy()},
+        features=override_features,
+    )
+    return override_ds
+
 
 
 
@@ -118,18 +129,18 @@ def train_sae(sae_cfg: SAEConfig,
     cache_dir = out_dir_path / "saelens_cache"
 
     # Step 1 - repack Cole's .pt as HF dataset SAELens can load
-    _build_hf_cache(activations_pt_path, sae_cfg, cache_dir)
+    hf_dataset = _build_hf_cache(activations_pt_path, sae_cfg, cache_dir)
     # Step 2 rebuild transformer and hand it to the runner via 'override_model' so it doesn't try to pull from the hub
     model = load_checkpoint(checkpoint_path, model_cfg)
     # Step 3 -build v6 nested config and run 
         # Step 3 - build the v6 nested config and run.
     runner_cfg = LanguageModelSAERunnerConfig(
         sae=StandardTrainingSAEConfig(
-            d_in=sae_cfg.d_in,
-            d_sae=sae_cfg.d_sae,
-            l1_coefficient=sae_cfg.l1_coefficient,
-            l1_warm_up_steps=sae_cfg.l1_warm_up_steps,
-            apply_b_dec_to_input=sae_cfg.apply_b_dec_to_input,
+            d_in=sae_cfg.dim_input,
+            d_sae=sae_cfg.dim_sae,
+            l1_coefficient=sae_cfg.l1_coeff,
+            l1_warm_up_steps=sae_cfg.l1_warmup_steps,
+            apply_b_dec_to_input=sae_cfg.apply_bias_decay_to_input,
             normalize_activations=sae_cfg.normalize_activations,
         ),
         # model_name is just an identifier in metadata; the actual weights come from override_model.
@@ -139,15 +150,15 @@ def train_sae(sae_cfg: SAEConfig,
         dataset_path="shakespeare-cached",  # descriptive tag; not read when using cache
         is_dataset_tokenized=True,
         streaming=False,
-        context_size=sae_cfg.context_size,
+        context_size=sae_cfg.context_len,
         use_cached_activations=True,
         cached_activations_path=str(cache_dir),
         prepend_bos=False,  # Cole's 02a does not prepend BOS
-        train_batch_size_tokens=sae_cfg.train_batch_size_tokens,
+        train_batch_size_tokens=sae_cfg.batch_size,
         training_tokens=sae_cfg.training_tokens,
         lr=sae_cfg.lr,
-        lr_warm_up_steps=sae_cfg.lr_warm_up_steps,
-        n_batches_in_buffer=sae_cfg.n_batches_in_buffer,
+        lr_warm_up_steps=sae_cfg.lr_warmup_steps,
+        n_batches_in_buffer=sae_cfg.num_batches_in_buffer,
         store_batch_size_prompts=sae_cfg.store_batch_size_prompts,
         device=device,
         seed=sae_cfg.seed,
@@ -157,7 +168,9 @@ def train_sae(sae_cfg: SAEConfig,
         save_final_checkpoint=False,
     )
 
-    runner = LanguageModelSAETrainingRunner(cfg=runner_cfg, override_model=model)
+    runner = LanguageModelSAETrainingRunner(cfg=runner_cfg, override_model=model
+                                            , override_dataset=hf_dataset,
+                                            )
     sae = runner.run()
     print(f"SAE training complete. Saved to {out_dir_path}")
     return sae

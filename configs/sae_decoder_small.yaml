@@ -8,16 +8,16 @@
 dim_input: 128        # matches model.d_model for hook_type=stream or mlp
 dim_sae: 1024         # expansion factor 8; bump to 2048+ once the pipeline works
 hook_type: "stream"   # stream | mlp | attention
-layer: 2              # which transformer layer to attach the SAE to (valid: 0..n_layers-1)
+layer: 3              # which transformer layer to attach the SAE to (valid: 0..n_layers-1)
 
 # -- Training schedule --
 lr: 3.0e-4
 batch_size: 4096                 # train_batch_size_tokens in SAELens terms
-training_tokens: 2000000         # ~1.3 epochs over the 1.49M cached train tokens
+training_tokens: 10000000          # was 2000000; ~6.7 epochs over the 1.49M cached tokens
 context_len: 256                 # MUST equal model.n_ctx
 
 # -- Sparsity / reconstruction --
-l1_coeff: 5.0
+l1_coeff: 2.0                # was 5.0; less aggressive sparsity penalty. was 2.0 for every layer except layer 3, layer 3 needs it to be 1.0.
 l1_warmup_steps: 500             # warm up sparsity penalty over first 500 steps
 lr_warmup_steps: 100
 apply_bias_decay_to_input: true

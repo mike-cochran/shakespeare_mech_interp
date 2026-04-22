@@ -8,9 +8,9 @@ will try to pull model from the hub)
 Format contracted from original:
     - One HF Dataset saved via 'Dataset.save_to_disk' (see mid.sae.activations.cache_activations):
     - One row per sequence, with columns as follows: 
-        - '{hook_name}': Array2d(shape=(context_size, d_input), dtype="float32")
-        - 'token_ids': Sequence(Value("int32"), length=context_size)
-    - At load time SAELens asserts 'features[hook_name].shape == (context_size, d_input)' 
+        - '{hook_name}': Array2d(shape=(contxt_size, d_input), dtype="float32")
+        - 'token_ids': Sequence(Value("int32"), length=contxt_size)
+    - At load time SAELens asserts 'features[hook_name].shape == (contxt_size, d_input)' 
 
 
 Owner:David Teklea
@@ -51,7 +51,7 @@ def _build_hf_cache(
         )
     if metadata["seq_len"] != contxt_size:
         raise ValueError(
-            f"Cached seq_len ({metadata['seq_len']}) != SAEConfig.context_size ({contxt_size})."
+            f"Cached seq_len ({metadata['seq_len']}) != SAEConfig.contxt_size ({contxt_size})."
         )
     if metadata.get("hook_type") and metadata["hook_type"] != sae_cfg.hook_type:
         raise ValueError(
@@ -60,7 +60,7 @@ def _build_hf_cache(
         )
     if n_tokens % contxt_size != 0:
         raise ValueError(
-            f"Flat token count {n_tokens} is not divisible by context_size {contxt_size}."
+            f"Flat token count {n_tokens} is not divisible by contxt_size {contxt_size}."
         ) 
     n_seq = n_tokens // contxt_size
     activations_3d = ( activations.reshape(n_seq, contxt_size, d_input).to(torch.float32).contiguous() )

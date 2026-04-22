@@ -1,0 +1,21 @@
+# ~1.6M parameter HookedTransformer config.
+
+# Model params
+d_model: 192
+d_head: 32
+n_heads: 6
+n_layers: 10
+d_mlp: 768
+d_vocab: 3000         # must match BPE tokenizer vocab_size
+n_ctx: 256            # context window
+act_fn: "gelu"
+normalization_type: "LN"
+tokenizer_name: null  # using our own tokenization
+seed: 16
+
+# Training params
+batch_size: 64
+learning_rate: 0.0003
+total_steps: 10000
+eval_interval: 200
+eval_batches: 20

@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 from tokenizers import Tokenizer
 
-OUTPUT_DIR = Path("tokenizer_output")
+OUTPUT_DIR = Path("../tokenizer_output")
 tokenizer = Tokenizer.from_file(str(OUTPUT_DIR / "tokenizer.json"))
 train_ids = np.load(OUTPUT_DIR / "train.npy")
 

@@ -4,7 +4,7 @@ torch
 tokenizers
 transformer_lens
 anthropic
-sae_lens
+sae_lens>=6.0,<7.0
 umap-learn
 einops
 wandb

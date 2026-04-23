@@ -56,10 +56,10 @@ def steer_with_feature(
     """Greedy-generate text with ``coefficient * sae.W_dec[feature_idx]`` added at the SAE hook.
 
     ``sae`` must expose ``.W_dec`` (shape ``[n_features, d_model]``) and
-    ``.cfg.hook_name``.
+    ``.cfg.metadata.hook_name`` (SAELens v6 ``StandardSAEConfig``).
     """
     steering_dir = sae.W_dec[feature_idx].detach().clone()
-    hook_name = sae.cfg.hook_name
+    hook_name = sae.cfg.metadata.hook_name
 
     def steering_hook(act, hook):  # noqa: ARG001
         act[:, :, :] += coefficient * steering_dir.to(act.device)

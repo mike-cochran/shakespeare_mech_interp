@@ -149,6 +149,8 @@ cython_debug/
 # Project specific ignores
 checkpoints/
 data/folger/
+data/sae_data/
+data/sae_out/
 tokenizer_output/*.npy
 activations/
 wandb/

@@ -16,11 +16,11 @@ def project_features(
     metric: str = "cosine",
     random_state: int = 0,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Run UMAP on ``sae.W_dec`` (shape ``[n_features, d_model]``).
+    """Run UMAP on sae.W_dec (shape [n_features, d_model]).
 
-    Returns ``(embeddings, feature_indices)`` where ``embeddings`` is
-    ``(n_features, n_components)`` and ``feature_indices`` is
-    ``np.arange(n_features)``. Cosine metric is used because decoder
+    Returns (embeddings, feature_indices) where embeddings is
+    (n_features, n_components) and feature_indices is
+    np.arange(n_features). Cosine metric is used because decoder
     directions are what matter, not their magnitudes.
     """
     import umap
@@ -48,8 +48,8 @@ def plot_feature_map(
 ):
     """Scatter plot of 2D-projected features.
 
-    If ``labels={feature_idx: label_str}`` is given, points are colored
-    by label. ``highlight_idxs`` draws red circles + annotations on
+    If labels={feature_idx: label_str} is given, points are colored
+    by label. highlight_idxs draws red circles + annotations on
     specific features. Returns the matplotlib Figure.
     """
     import matplotlib.pyplot as plt

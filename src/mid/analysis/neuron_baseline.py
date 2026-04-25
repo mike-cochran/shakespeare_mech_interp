@@ -21,10 +21,10 @@ def top_activating_neurons(
     k: int = 20,
     context_window: int = 8,
 ) -> dict[int, list[tuple[str, float]]]:
-    """For each neuron at ``hook_name``, return the top-k activating contexts.
+    """For each neuron at hook_name, return the top-k activating contexts.
 
-    ``dataset_tokens`` has shape ``(batch, seq)``. Returns
-    ``{neuron_idx: [(snippet_text, activation_value), ...]}`` sorted by
+    dataset_tokens has shape (batch, seq). Returns
+    {neuron_idx: [(snippet_text, activation_value), ...]} sorted by
     descending activation.
     """
     model.eval()
@@ -80,15 +80,14 @@ def score_monosemanticity(
 ) -> dict[int, float]:
     """Score each neuron's top contexts on a 0-1 monosemanticity scale.
 
-    ``llm_client`` can be:
-    - ``None`` (default): use a unique-token-ratio heuristic.
-    - ``"anthropic"``: call the temporary inline Claude scorer.
-    - any object with ``.score(snippets) -> float``.
+    llm_client can be:
+    - None (default): use a unique-token-ratio heuristic.
+    - "anthropic": call the temporary inline Claude scorer.
+    - any object with .score(snippets) -> float.
     """
     scores: dict[int, float] = {}
     total = len(top_contexts)
     use_llm = llm_client is not None
-    # Roughly 20 progress lines for an LLM run; silent for the heuristic path.
     log_every = max(1, total // 20) if use_llm else 0
 
     for i, (neuron_idx, contexts) in enumerate(top_contexts.items()):
@@ -143,7 +142,7 @@ def summarize_neuron(
     top_contexts: dict[int, list[tuple[str, float]]],
     top_n_tokens: int = 5,
 ) -> dict[str, object]:
-    """Return ``{neuron, top_tokens, contexts}`` for spot-checking one neuron."""
+    """Return {neuron, top_tokens, contexts} for spot-checking one neuron."""
     contexts = top_contexts[neuron_idx]
     all_tokens = " ".join(text for text, _ in contexts).split()
     counter = Counter(all_tokens)

@@ -19,7 +19,7 @@ def call_anthropic(
     max_tokens: int = 8,
 ) -> str:
     """Send a single-message completion and return the stripped text."""
-    import anthropic  # lazy so the heuristic path works without the package
+    import anthropic  # lazy import
 
     client = anthropic.Anthropic()
     resp = client.messages.create(

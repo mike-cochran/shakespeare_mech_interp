@@ -150,7 +150,6 @@ cython_debug/
 checkpoints/
 data/folger/
 data/sae_data/
-data/sae_out/
 tokenizer_output/*.npy
 activations/
 wandb/

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ipconfig)",
+      "Bash(arp -a)",
+      "Bash(python -c \"import numpy as np; t=np.load\\('tokenizer_output/train.npy'\\); v=np.load\\('tokenizer_output/val.npy'\\); print\\('train:', t.shape, t.dtype\\); print\\('val:', v.shape, v.dtype\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d['metadata'], indent=2\\)\\)\")",
+      "Bash(where node *)",
+      "Read(//c/Users/mjcoc/AppData/Local/Programs/Python/**)",
+      "Bash(/c/Users/mjcoc/AppData/Local/Programs/Python/Python313/python.exe -c \"import json; json.load\\(open\\('notebooks/03a_feature_labels.ipynb'\\)\\); print\\('ok'\\)\")",
+      "Bash(/c/Users/mjcoc/AppData/Local/Programs/Python/Python313/python.exe -c \"import ast; ast.parse\\(open\\('src/mid/analysis/auto_label.py'\\).read\\(\\)\\); print\\('ok'\\)\")",
+      "Bash(/c/Users/mjcoc/AppData/Local/Programs/Python/Python313/python.exe -c \"import json; nb=json.load\\(open\\('notebooks/03a_feature_labels.ipynb'\\)\\); [print\\(i, c.get\\('id','<no-id>'\\), c['cell_type'], \\(c['source'][0][:60] if c['source'] else ''\\)\\) for i,c in enumerate\\(nb['cells']\\)]\")",
+      "Bash(/c/Users/mjcoc/AppData/Local/Programs/Python/Python313/python.exe -c \"import json; nb=json.load\\(open\\('notebooks/03a_feature_labels.ipynb'\\)\\); print\\(''.join\\(nb['cells'][1]['source']\\)\\)\")"
+    ]
+  }
+}

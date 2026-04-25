@@ -1,38 +1,41 @@
 """SAELens training entry point. Consumes cached activations from `mid.sae.activations`.
 
-Reads per-layer activations from mid.sae.activations.cache_activations, 
+Reads per-layer activations from mid.sae.activations.cache_activations,
 trains a SAE model, and saves the trained model to disk.Does this using SAELens v6,
-and agains tthe HookedTransformer checkpoint via 'override_model' (otherwise, SAELens 
+and agains tthe HookedTransformer checkpoint via 'override_model' (otherwise, SAELens
 will try to pull model from the hub)
 
 Format contracted from original:
     - One HF Dataset saved via 'Dataset.save_to_disk' (see mid.sae.activations.cache_activations):
-    - One row per sequence, with columns as follows: 
+    - One row per sequence, with columns as follows:
         - '{hook_name}': Array2d(shape=(contxt_size, d_input), dtype="float32")
         - 'token_ids': Sequence(Value("int32"), length=contxt_size)
-    - At load time SAELens asserts 'features[hook_name].shape == (contxt_size, d_input)' 
+    - At load time SAELens asserts 'features[hook_name].shape == (contxt_size, d_input)'
 
 
 Owner:David Teklea
 """
 
 from __future__ import annotations
-import shutil 
+
+import shutil
+from pathlib import Path
+
 import torch
-from pathlib import Path 
 from datasets import Array2D, Dataset, Features, Sequence, Value
 
 from mid.config import ModelConfig, SAEConfig
 from mid.model.hooked_model import load_checkpoint
-from mid.sae.activations import read_activations 
+from mid.sae.activations import read_activations
+
 
 def _build_hf_cache(
-   activations_pt_path: str,
-   sae_cfg: SAEConfig,
-   cache_dir: Path,     
-) -> Dataset: 
+    activations_pt_path: str,
+    sae_cfg: SAEConfig,
+    cache_dir: Path,
+) -> Dataset:
     """Convert Cole's per-layer .pt payload into the SAELens-comptatible format HF Dataset
-    
+
     Cole's cache stores activations flattened as `[n_seq * seq_len, d_in]` and
     token_ids flattened as `[n_seq * seq_len]` (contiguous, sequence-major).
     SAELens wants each row to be one full sequence, so we reshape back to
@@ -43,7 +46,9 @@ def _build_hf_cache(
     contxt_size = sae_cfg.context_len
     d_input = sae_cfg.dim_input
     # read the .pt file and extract activations and token_ids
-    activations, metadata, n_tokens, n_activations = read_activations(activations_pt_path, layer_num=sae_cfg.layer)
+    activations, metadata, n_tokens, n_activations = read_activations(
+        activations_pt_path, layer_num=sae_cfg.layer
+    )
     if n_activations != d_input:
         raise ValueError(
             f"Cached activation width ({n_activations}) != SAEConfig.d_in ({d_input}). "
@@ -61,21 +66,22 @@ def _build_hf_cache(
     if n_tokens % contxt_size != 0:
         raise ValueError(
             f"Flat token count {n_tokens} is not divisible by contxt_size {contxt_size}."
-        ) 
+        )
     n_seq = n_tokens // contxt_size
-    activations_3d = ( activations.reshape(n_seq, contxt_size, d_input).to(torch.float32).contiguous() )
-    token_idexes_2d = ( metadata["token_ids"].reshape(n_seq, contxt_size).to(torch.int32).contiguous() )
+    activations_3d = activations.reshape(n_seq, contxt_size, d_input).to(torch.float32).contiguous()
+    token_idexes_2d = metadata["token_ids"].reshape(n_seq, contxt_size).to(torch.int32).contiguous()
 
-    features = Features({
-        hook_name: Array2D(shape=(contxt_size, d_input), dtype="float32"),
-        "token_ids": Sequence(Value(dtype="int32"), length=contxt_size)
-    })
+    features = Features(
+        {
+            hook_name: Array2D(shape=(contxt_size, d_input), dtype="float32"),
+            "token_ids": Sequence(Value(dtype="int32"), length=contxt_size),
+        }
+    )
 
-    ds = Dataset.from_dict({
-        hook_name: activations_3d.cpu().numpy(), 
-        "token_ids": token_idexes_2d.cpu().numpy()
-    }, features=features
-    ) 
+    ds = Dataset.from_dict(
+        {hook_name: activations_3d.cpu().numpy(), "token_ids": token_idexes_2d.cpu().numpy()},
+        features=features,
+    )
 
     # save dataset to disk, otherwise, nuke and pave on re runs
     if cache_dir.exists():
@@ -89,9 +95,7 @@ def _build_hf_cache(
 
     ## have to build a separate tokens-only dataset for the init check
     ## conducted by SAELens before training
-    override_features = Features({
-        "tokens": Sequence(Value(dtype="int64"), length=contxt_size)
-    })
+    override_features = Features({"tokens": Sequence(Value(dtype="int64"), length=contxt_size)})
     override_ds = Dataset.from_dict(
         {"tokens": metadata["token_ids"].reshape(n_seq, contxt_size).to(torch.int64).numpy()},
         features=override_features,
@@ -99,20 +103,15 @@ def _build_hf_cache(
     return override_ds
 
 
-
-
-
-def train_sae(sae_cfg: SAEConfig, 
-              model_cfg: ModelConfig,
-              checkpoint_path: str,
-              activations_pt_path: str, 
-              out_dir: str,
-              device: str | None = None,
+def train_sae(
+    sae_cfg: SAEConfig,
+    model_cfg: ModelConfig,
+    checkpoint_path: str,
+    activations_pt_path: str,
+    out_dir: str,
+    device: str | None = None,
 ):
-    """ Train a single SAE against one layer of the cached activations
-    
-    
-    """
+    """Train a single SAE against one layer of the cached activations"""
 
     from sae_lens import (
         LanguageModelSAERunnerConfig,
@@ -120,6 +119,7 @@ def train_sae(sae_cfg: SAEConfig,
         LoggingConfig,
         StandardTrainingSAEConfig,
     )
+
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Training SAE on device: {device}")
@@ -132,8 +132,8 @@ def train_sae(sae_cfg: SAEConfig,
     hf_dataset = _build_hf_cache(activations_pt_path, sae_cfg, cache_dir)
     # Step 2 rebuild transformer and hand it to the runner via 'override_model' so it doesn't try to pull from the hub
     model = load_checkpoint(checkpoint_path, model_cfg)
-    # Step 3 -build v6 nested config and run 
-        # Step 3 - build the v6 nested config and run.
+    # Step 3 -build v6 nested config and run
+    # Step 3 - build the v6 nested config and run.
     runner_cfg = LanguageModelSAERunnerConfig(
         sae=StandardTrainingSAEConfig(
             d_in=sae_cfg.dim_input,
@@ -168,10 +168,11 @@ def train_sae(sae_cfg: SAEConfig,
         save_final_checkpoint=False,
     )
 
-    runner = LanguageModelSAETrainingRunner(cfg=runner_cfg, override_model=model
-                                            , override_dataset=hf_dataset,
-                                            )
+    runner = LanguageModelSAETrainingRunner(
+        cfg=runner_cfg,
+        override_model=model,
+        override_dataset=hf_dataset,
+    )
     sae = runner.run()
     print(f"SAE training complete. Saved to {out_dir_path}")
     return sae
-

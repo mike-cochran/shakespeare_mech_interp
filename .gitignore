@@ -153,3 +153,6 @@ tokenizer_output/*.npy
 activations/
 wandb/
 *.ckpt
+
+data/sae_data/
+data/sae_out/

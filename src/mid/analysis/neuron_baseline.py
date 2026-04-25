@@ -86,23 +86,28 @@ def score_monosemanticity(
     - any object with ``.score(snippets) -> float``.
     """
     scores: dict[int, float] = {}
+    total = len(top_contexts)
+    use_llm = llm_client is not None
+    # Roughly 20 progress lines for an LLM run; silent for the heuristic path.
+    log_every = max(1, total // 20) if use_llm else 0
 
-    for neuron_idx, contexts in top_contexts.items():
+    for i, (neuron_idx, contexts) in enumerate(top_contexts.items()):
         snippets = [text for text, _ in contexts]
 
         if llm_client == "anthropic":
             scores[neuron_idx] = _score_via_llm(snippets)
-            continue
-        if llm_client is not None:
+        elif llm_client is not None:
             scores[neuron_idx] = float(llm_client.score(snippets))
-            continue
+        else:
+            all_tokens = " ".join(snippets).split()
+            if not all_tokens:
+                scores[neuron_idx] = 0.0
+            else:
+                unique_ratio = len(set(all_tokens)) / len(all_tokens)
+                scores[neuron_idx] = 1.0 - unique_ratio
 
-        all_tokens = " ".join(snippets).split()
-        if not all_tokens:
-            scores[neuron_idx] = 0.0
-            continue
-        unique_ratio = len(set(all_tokens)) / len(all_tokens)
-        scores[neuron_idx] = 1.0 - unique_ratio
+        if use_llm and ((i + 1) % log_every == 0 or i + 1 == total):
+            print(f"  [LLM scoring] {i + 1}/{total}", flush=True)
 
     return scores
 

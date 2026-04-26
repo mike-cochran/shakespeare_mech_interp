@@ -6,9 +6,10 @@ Owner: Cole S.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import torch
 
-from pathlib import Path
 from mid.config import ModelConfig
 from mid.model.dataset import load_token_arrays
 from mid.model.hooked_model import load_checkpoint

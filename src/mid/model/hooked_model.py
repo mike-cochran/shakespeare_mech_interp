@@ -5,9 +5,10 @@ Owner: Mike C (build) & Cole S (load)
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import torch
 from transformer_lens import HookedTransformer, HookedTransformerConfig
-from pathlib import Path
 
 from mid.config import ModelConfig
 

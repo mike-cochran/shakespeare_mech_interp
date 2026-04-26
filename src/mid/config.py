@@ -5,7 +5,7 @@ Owner: Mike C.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, fields
 
 import yaml
 
@@ -39,29 +39,30 @@ class TrainConfig:
     def to_dict(self) -> dict:
         return asdict(self)
 
-@dataclass 
-class SAEConfig:
-    """ Config for the hyperparameters of the SAE via SAELens v6"""
 
-    # Training Schedule 
-    lr: float 
+@dataclass
+class SAEConfig:
+    """Config for the hyperparameters of the SAE via SAELens v6"""
+
+    # Training Schedule
+    lr: float
     batch_size: int
-    training_tokens: int 
+    training_tokens: int
     context_len: int
     # Sparsity / reconstruction
-    l1_coeff: float 
+    l1_coeff: float
     l1_warmup_steps: int
     lr_warmup_steps: int
     apply_bias_decay_to_input: bool
-    normalize_activations: str 
+    normalize_activations: str
     # Architecture
     dim_input: int
     dim_sae: int
-    hook_type: str  
-    layer: int  
-    # Buffer sizing for SAE 
-    num_batches_in_buffer: int 
-    store_batch_size_prompts: int 
+    hook_type: str
+    layer: int
+    # Buffer sizing for SAE
+    num_batches_in_buffer: int
+    store_batch_size_prompts: int
 
     seed: int = 32
 
@@ -71,11 +72,13 @@ class SAEConfig:
             return f"blocks.{self.layer}.mlp.hook_post"
         if self.hook_type == "attention":
             return f"blocks.{self.layer}.attn.hook_z"
-        if self.hook_type == "stream": 
+        if self.hook_type == "stream":
             return f"blocks.{self.layer}.hook_resid_post"
         raise ValueError(f"Invalid hook type: {self.hook_type}")
+
     def to_dict(self) -> dict:
         return asdict(self)
+
 
 def load_yaml(path: str) -> dict:
     with open(path) as f:
@@ -91,6 +94,7 @@ def load_configs(path: str) -> tuple[ModelConfig, TrainConfig]:
         ModelConfig(**{k: v for k, v in raw.items() if k in model_keys}),
         TrainConfig(**{k: v for k, v in raw.items() if k in train_keys}),
     )
+
 
 def load_sae_config(path: str) -> SAEConfig:
     """Load an SAE YAML into an SAEConfig."""

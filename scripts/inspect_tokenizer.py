@@ -40,7 +40,7 @@ def show_tokenized(text: str, max_chars: int = 1000):
 
 
 # Load corpus and show a sample
-corpus = Path("data/shakespeare_combined.txt").read_text(encoding="utf-8")
+corpus = Path("../data/shakespeare_combined.txt").read_text(encoding="utf-8")
 show_tokenized(corpus, max_chars=1000)
 
 # Show a different passage example

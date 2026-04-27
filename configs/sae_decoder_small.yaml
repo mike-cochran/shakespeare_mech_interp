@@ -17,7 +17,7 @@ training_tokens: 10000000          # was 2000000; ~6.7 epochs over the 1.49M cac
 context_len: 256                 # MUST equal model.n_ctx
 
 # -- Sparsity / reconstruction --
-l1_coeff: 2.0                # was 5.0; less aggressive sparsity penalty. was 2.0 for every layer except layer 3, layer 3 needs it to be 1.0.
+l1_coeff: 1.0                # was 5.0; less aggressive sparsity penalty. was 2.0 for every layer except layer 3, layer 3 needs it to be 1.0.
 l1_warmup_steps: 500             # warm up sparsity penalty over first 500 steps
 lr_warmup_steps: 100
 apply_bias_decay_to_input: true

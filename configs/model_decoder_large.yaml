@@ -1,4 +1,4 @@
-# ~1.6M parameter HookedTransformer config.
+# ~5.6M parameter HookedTransformer config.
 
 # Model params
 d_model: 192

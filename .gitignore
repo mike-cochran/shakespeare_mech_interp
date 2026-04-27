@@ -152,6 +152,7 @@ data/folger/
 tokenizer_output/*.npy
 activations/
 wandb/
+.claude/settings.local.json
 *.ckpt
 
 data/sae_data/

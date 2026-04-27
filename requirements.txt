@@ -4,10 +4,10 @@ torch
 tokenizers
 transformer_lens
 anthropic
+python-dotenv
 sae_lens>=6.0,<7.0
 umap-learn
 einops
 wandb
 pyyaml
 ipywidgets
-python-dotenv

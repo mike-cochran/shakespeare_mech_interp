@@ -10,8 +10,6 @@ environment.
 
 from __future__ import annotations
 
-import anthropic
-
 DEFAULT_MODEL = "claude-haiku-4-5"
 
 
@@ -21,6 +19,8 @@ def call_anthropic(
     max_tokens: int = 8,
 ) -> str:
     """Send a single-message completion and return the stripped text."""
+    import anthropic  # lazy import
+
     client = anthropic.Anthropic()
     resp = client.messages.create(
         model=model,

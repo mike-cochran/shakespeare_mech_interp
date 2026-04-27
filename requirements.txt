@@ -11,3 +11,4 @@ einops
 wandb
 pyyaml
 ipywidgets
+python-dotenv

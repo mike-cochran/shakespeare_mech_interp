@@ -18,4 +18,3 @@ def load_sae(path: str, device: str = "cpu", sae_lens=None):
     from sae_lens import SAE
 
     return SAE.load_from_disk(path, device=device)
-    raise NotImplementedError

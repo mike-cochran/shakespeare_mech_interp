@@ -17,6 +17,7 @@ def call_anthropic(
     prompt: str,
     model: str = DEFAULT_MODEL,
     max_tokens: int = 8,
+    temperature: float = 0.0,
 ) -> str:
     """Send a single-message completion and return the stripped text."""
     import anthropic  # lazy import
@@ -25,6 +26,7 @@ def call_anthropic(
     resp = client.messages.create(
         model=model,
         max_tokens=max_tokens,
+        temperature=temperature,
         messages=[{"role": "user", "content": prompt}],
     )
     return resp.content[0].text.strip()
